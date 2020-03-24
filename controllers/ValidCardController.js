@@ -68,7 +68,7 @@ module.exports = {
 
     },
     async checking(req, res) {
-console.log(query.body)
+console.log(req.body)
         const query = await CardsBeingTested.where({ userID: req.query.userID });
 
         let result = []
