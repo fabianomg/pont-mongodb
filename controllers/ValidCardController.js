@@ -68,7 +68,7 @@ module.exports = {
 
     },
     async checking(req, res) {
-
+cosnole.log(query.body)
         const query = await CardsBeingTested.where({ userID: req.query.userID });
 
         let result = []
