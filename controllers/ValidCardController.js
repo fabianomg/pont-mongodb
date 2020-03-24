@@ -68,39 +68,39 @@ module.exports = {
 
     },
     async checking(req, res) {
-    
-   const query = await CardsBeingTested.where({ userID: req.query.userID });
+
+        const query = await CardsBeingTested.where({ userID: req.query.userID });
 
         let result = []
 
         for (let index = 0; index < query.length; index++) {
-           
 
-            if(query[index].valid ===true){
-                 console.log(query[index].valid)
-               result.push({
-                'cards': '<a href="#">'+query[index].card.number +'|'+ query[index].card.mes +'|'+ query[index].card.ano+'|'+query[index].card.cvv+'</a>',
-                'status': '<span class="label label-sm label-success">APROVADO</span> <span class="label label-sm label-info">ELPATRON</span>'
-            })
-            }else{
+
+            if (query[index].valid === true) {
+                console.log(query[index].valid)
                 result.push({
-                'cards': '<a href="#">'+ query[index].card.number +'|'+ query[index].card.mes +'|'+ query[index].card.ano+'|'+query[index].card.cvv+'</a>',
-                'status': '<span class="label label-sm label-danger">NEGADO</span> <span class="label label-sm label-warning">ELPATRON</span>'
-            })
+                    'cards': '<a href="#">' + query[index].card.number + '|' + query[index].card.mes + '|' + query[index].card.ano + '|' + query[index].card.cvv + '</a>',
+                    'status': '<span class="label label-sm label-success">APROVADO</span> <span class="label label-sm label-info">ELPATRON</span>'
+                })
+            } else {
+                result.push({
+                    'cards': '<a href="#">' + query[index].card.number + '|' + query[index].card.mes + '|' + query[index].card.ano + '|' + query[index].card.cvv + '</a>',
+                    'status': '<span class="label label-sm label-danger">NEGADO</span> <span class="label label-sm label-warning">ELPATRON</span>'
+                })
             }
 
-           
+
 
 
         }
         var dados = { data: result };
 
-            return res.json(dados);
+        return res.json(dados);
         //let t = await CadastroCards.where({ _id: query[0]._id }).updateOne({ tested: true, valid: true })
-        
+
 
     },
-     async listcards(req, res) {
+    async listcards(req, res) {
 
         const query = await CadastroCards.where({ userID: req.body.userID, owner: req.body.owner });
         let result = []
@@ -122,16 +122,16 @@ module.exports = {
         return res.json(result)
 
     },
-    async deletcards(req,res){
-        const query = await CardsBeingTested.where({ userID: req.body.userID});
-       for (const ids of query) {
-    
-           CardsBeingTested.findByIdAndDelete(ids._id, function (err) {
-            if(err) console.log(err);
-        console.log(ids._id+" Successful deletion");
-     });
-       }
-       return res.json(query.length)
+    async deletcards(req, res) {
+        const query = await CardsBeingTested.where({ userID: req.body.userID });
+        for (const ids of query) {
+
+            CardsBeingTested.findByIdAndDelete(ids._id, function (err) {
+                if (err) console.log(err);
+                console.log(ids._id + " Successful deletion");
+            });
+        }
+        return res.json(query.length)
 
     }
 
