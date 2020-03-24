@@ -1,0 +1,13 @@
+version: "3.1"
+services:
+  cards:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    command: npm start
+    container_name: cards
+    ports:
+      - "3332:3332"
+    restart: always
+    volumes:
+      - .:/usr/src/cards
