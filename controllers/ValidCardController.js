@@ -122,8 +122,8 @@ console.log(query[index])
 
     },
     async getcards(req,res){
- console.log(req.body.id)
-        const query = await CadastroCards.where({ userID: req.body.id });
+ console.log(req.query.id)
+        const query = await CadastroCards.where({ userID: req.query.id });
 
         let result = []
 
