@@ -7,6 +7,7 @@ var logger = require('morgan');
 const bodyParser = require('body-parser');
 var mongoose = require("mongoose");
 var cors = require('cors')
+var redis = require('redis');
 var app = express();//mongoose.connect('mongodb://admin:admin123@127.0.0.1:27017/food?authSource=admin'
 mongoose.connect('mongodb://adminelpatron:Wd4CeFIIrRyM8vUJ7D2YXTKj@mongo:27017/elpatron?authSource=admin',
   {
@@ -23,6 +24,17 @@ mongoose.connect('mongodb://adminelpatron:Wd4CeFIIrRyM8vUJ7D2YXTKj@mongo:27017/e
     }
   }
 );
+const client = redis.createClient(6379, "redis");
+client.on('connect', (err) => {
+  if (!err) {
+
+    console.log('Redis conexão bem sucedida!');
+  } else {
+    e.log('Error na conexão com o Redis: ' + err);
+  }
+
+});
+
 app.use(cors())
 app.use(logger('dev'));
 app.use(express.json());

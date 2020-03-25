@@ -2,10 +2,11 @@
 const Func = require('../lib/func')
 const Amarithcafe = require('../lib/amarithcafe')
 const Queue = require('../lib/queue')
-
 const CadastroCards = require("../model/cards")
 const Logs = require("../model/logs")
 const CardsBeingTested = require("../model/cards_being_tested");
+const Redis = require('redis');
+const Cache = Redis.createClient(6379, "redis");
 module.exports = {
 
     async Card(req, res) {
@@ -68,38 +69,22 @@ module.exports = {
 
     },
     async checking(req, res) {
-console.log(req.body)
-        const query = await CardsBeingTested.where({ userID: req.body.userID });
+        console.log(req.query.userID)
+        const query = await CardsBeingTested.where({ userid: req.query.userID });
 
         let result = []
 
         for (let index = 0; index < query.length; index++) {
-
-
-            if (query[index].valid === true) {
-                console.log(query[index].valid)
+console.log(query[index])
                 result.push({
-                    'cards': '<a href="#">' + query[index].card.number + '|' + query[index].card.mes + '|' + query[index].card.ano + '|' + query[index].card.cvv + '</a>',
-                    'status': '<span class="label label-sm label-success">APROVADO</span> <span class="label label-sm label-info">ELPATRON</span>'
-                })
-            } else {
-                result.push({
-                    'cards': '<a href="#">' + query[index].card.number + '|' + query[index].card.mes + '|' + query[index].card.ano + '|' + query[index].card.cvv + '</a>',
-                    'status': '<span class="label label-sm label-danger">NEGADO</span> <span class="label label-sm label-warning">ELPATRON</span>'
-                })
-            }
-
-
-
+                    'cards': query[index].card,
+                    'status': query[index].status
+               });
 
         }
         var dados = { data: result };
-
-        return res.json(dados);
-        //let t = await CadastroCards.where({ _id: query[0]._id }).updateOne({ tested: true, valid: true })
-
-
-    },
+      return res.json(dados);
+       },
     async listcards(req, res) {
 
         const query = await CadastroCards.where({ userID: req.body.userID, owner: req.body.owner });
@@ -123,7 +108,9 @@ console.log(req.body)
 
     },
     async deletcards(req, res) {
-        const query = await CardsBeingTested.where({ userID: req.body.userID });
+        console.log(req.body.userID)
+        const query = await CardsBeingTested.where({ userid: req.body.userID });
+        console.log(query)
         for (const ids of query) {
 
             CardsBeingTested.findByIdAndDelete(ids._id, function (err) {
@@ -133,6 +120,42 @@ console.log(req.body)
         }
         return res.json(query.length)
 
+    },
+    async getcards(req,res){
+ console.log(req.body.id)
+        const query = await CadastroCards.where({ userID: req.query.id });
+
+        let result = []
+
+        for (let index = 0; index < query.length; index++) {
+            let v;
+            let t;
+           if(query[index].valid){
+              v = '<span class="label label-sm label-success">'+query[index].valid+'</span>';
+           }else{
+             v = '<span class="label label-sm label-danger">'+query[index].valid+'</span>';
+           }
+            if(query[index].valid){
+              t = '<span class="label label-sm label-info">'+query[index].valid+'</span>';
+           }else{
+             t = '<span class="label label-sm label-warning">'+query[index].valid+'</span>';
+           }
+
+                result.push({
+                    'cards': query[index].card.number,
+                    'mes': query[index].card.mes,
+                    'ano': query[index].card.ano,
+                    'cvv': query[index].card.cvv,
+                    'valido': v,
+                    'testado': t,
+                    'data': query[index].data
+
+               });
+
+        }
+        var dados = { data: result };
+      return res.json(dados);
+      
     }
 
 }
