@@ -18,5 +18,5 @@ let CardsSchema = new Schema({
     data: { type: Date, default: new Date() }
 
 });
-CardsSchema.plugin(uniqueValidator);
+//CardsSchema.plugin(uniqueValidator);
 module.exports = mongoose.model("Cards", CardsSchema, "Cards");

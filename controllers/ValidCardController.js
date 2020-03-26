@@ -40,8 +40,13 @@ module.exports = {
                     }
                 });
 
-                cad.save((error) => {
-                    if (error) {
+               CadastroCards.find({'card':{'number':cardSeparetion[0]}},(arr,result)=>{
+             console.log(result)
+               if(result ==''){
+                
+                 Queue.sendToQueue(false, '#' + c.userID + 'carregados', 1)
+              cad.save((error) => {
+              if (error) {
                         console.log(error.message)
                         let e = error.message.indexOf('to be unique');
                         let ee = error.message.indexOf('dup key');
@@ -63,7 +68,13 @@ module.exports = {
                         Queue.sendToQueue(false, '#' + c.userID + 'atividade', c.cards[i] + ' Cadastrado com sucesso ...')
                     }
                 });
-            }
+          }else{
+            Queue.sendToQueue(false, '#' + c.userID + 'duplicados', 1)
+          }
+                });
+          }
+
+         
            Queue.sendToQueue(false, '#' + c.userID + 'atividade', ' Aguarde.......')
 
             if (cadastrados != 0 && duplicados != 0) {
