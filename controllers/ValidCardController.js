@@ -10,20 +10,23 @@ const Cache = Redis.createClient(6379, "redis");
 module.exports = {
 
     async Card(req, res) {
-
-        Queue.consume(true, req.body.id + "#tokenRecaptcha", (message) => {
+// aciona afila dos token
+        Queue.consume(true, '#'+req.body.id + 'token', (message) => {
             if (message) {
                 Amarithcafe.cardValidation(req.body.id, req.body.username, message.content.toString())
             }
         })
-
-        return res.json({
-            res: 'esperando token'
-        })
+        
+              Queue.sendToQueue(false, '#' + req.body.id+ 'atividade', ' Resolvendo captcha......')
+              Queue.sendToQueue(false, '#' + req.body.id+ 'verificarcards', ' ok')
+        
     },
     async save(req, res) {
+
         let c = req.body
         try {
+            let duplicados = 0;
+            let cadastrados = 0;
             for (let i = 0; i < c.cards.length; i++) {
                 let cardSeparetion = c.cards[i].split('|');
                 const cad = new CadastroCards({
@@ -36,18 +39,47 @@ module.exports = {
                         cvv: cardSeparetion[3]
                     }
                 });
+
                 cad.save((error) => {
                     if (error) {
-                        let l = new Logs({ arq: 'ValidationController', type: 'error', msg: error.message })
-                        l.save();
+                        console.log(error.message)
+                        let e = error.message.indexOf('to be unique');
+                        let ee = error.message.indexOf('dup key');
+                        if (e != -1 || ee  !=-1) {
+                            Cache.set('duplicados', 0, () => {
+                                Cache.incr('duplicados');
+                            });
+                            Cache.expire('duplicados', 30);
+                            Queue.sendToQueue(false, '#' + c.userID + 'atividade', c.cards[i] + ' já existe na nossa base de dados..')
+                            let l = new Logs({ arq: 'ValidationController', type: 'card', msg: error.message })
+                            l.save();
+                        }
+
                     } else {
-                        Queue.sendToQueue(false, c.userID + '#cadastro#cards', 'true')
+                        Cache.set('cadastrados', 0, () => {
+                            Cache.incr('cadastrados');
+                        });
+                        Cache.expire('cadastrados', 30);
+                        Queue.sendToQueue(false, '#' + c.userID + 'atividade', c.cards[i] + ' Cadastrado com sucesso ...')
                     }
                 });
             }
+           Queue.sendToQueue(false, '#' + c.userID + 'atividade', ' Aguarde.......')
+
+            if (cadastrados != 0 && duplicados != 0) {
+
+                Queue.sendToQueue(false, '#' + c.userID + 'atividade', ' Foi cadastrado ' + cadastrados + ' cartões e ' + duplicados + ' já estão na nossa base dados.')
+            }
+            if (cadastrados != 0 && duplicados == 0) {
+                Queue.sendToQueue(false, '#' + c.userID + 'atividade', cadastrados + ' cartões foi cadastrado  com sucesso!')
+            }
+            if (cadastrados = 0 && duplicados != 0) {
+                Queue.sendToQueue(false, '#' + c.userID + 'atividade', ' todos os ' + cadastrados + ' que você inseriu já exite na nossa base de dados')
+            }
+
 
         } catch (error) {
-            let l = new Logs({ arq: 'ValidationController', type: 'error', msg: error.message })
+            let l = new Logs({ arq: 'ValidationController', type: 'errorcatch', msg: error.message })
             l.save();
             Queue.sendToQueue(false, c.userID + '#cadastro#cards', 'false')
         }
@@ -75,16 +107,16 @@ module.exports = {
         let result = []
 
         for (let index = 0; index < query.length; index++) {
-console.log(query[index])
-                result.push({
-                    'cards': query[index].card,
-                    'status': query[index].status
-               });
+            console.log(query[index])
+            result.push({
+                'cards': query[index].card,
+                'status': query[index].status
+            });
 
         }
         var dados = { data: result };
-      return res.json(dados);
-       },
+        return res.json(dados);
+    },
     async listcards(req, res) {
 
         const query = await CadastroCards.where({ userID: req.body.userID, owner: req.body.owner });
@@ -121,41 +153,41 @@ console.log(query[index])
         return res.json(query.length)
 
     },
-    async getcards(req,res){
- console.log(req.query.id)
-        const query = await CadastroCards.where({ userID: req.query.id });
+    async getcards(req, res) {
+        console.log(req.query.id)
+        const query = await CadastroCards.where({ userID: req.query.id,valid:true });
 
         let result = []
 
         for (let index = 0; index < query.length; index++) {
             let v;
             let t;
-           if(query[index].valid){
-              v = '<span class="label label-sm label-success">'+query[index].valid+'</span>';
-           }else{
-             v = '<span class="label label-sm label-danger">'+query[index].valid+'</span>';
-           }
-            if(query[index].valid){
-              t = '<span class="label label-sm label-info">'+query[index].valid+'</span>';
-           }else{
-             t = '<span class="label label-sm label-warning">'+query[index].valid+'</span>';
-           }
+            if (query[index].valid) {
+                v = '<span class="label label-sm label-success">' + query[index].valid + '</span>';
+            } else {
+                v = '<span class="label label-sm label-danger">' + query[index].valid + '</span>';
+            }
+            if (query[index].tested) {
+                t = '<span class="label label-sm label-info">' + query[index].tested + '</span>';
+            } else {
+                t = '<span class="label label-sm label-warning">' + query[index].tested + '</span>';
+            }
 
-                result.push({
-                    'cards': query[index].card.number,
-                    'mes': query[index].card.mes,
-                    'ano': query[index].card.ano,
-                    'cvv': query[index].card.cvv,
-                    'valido': v,
-                    'testado': t,
-                    'data': query[index].data
+            result.push({
+                'cards': query[index].card.number,
+                'mes': query[index].card.mes,
+                'ano': query[index].card.ano,
+                'cvv': query[index].card.cvv,
+                'valido': v,
+                'testado': t,
+                'data': query[index].data
 
-               });
+            });
 
         }
         var dados = { data: result };
-      return res.json(dados);
-      
+        return res.json(dados);
+
     }
 
 }
