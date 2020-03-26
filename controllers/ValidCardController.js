@@ -72,7 +72,7 @@ module.exports = {
                             Queue.sendToQueue(false, '#' + req.body.userID + 'atividade', 'Teste finalizado')
                             Queue.sendToQueue(false, '#' + req.body.userID + 'reprovados', 1)
                             Queue.sendToQueue(false, '#' + req.body.userID + 'testados', 1)
-                            let MSG = '<a href="#">' + card + '  </a><span class="label label-sm label-danger">NEGADO</span> <span class="label label-sm label-success">JÁ FOI TESTADO</span>'
+                            let MSG = '<a href="#">' + card + '  </a> <span class="label label-sm label-success">JÁ FOI TESTADO</span>'
                             Queue.sendToQueue(false, '#' + req.body.userID + 'listreprovados', MSG)
                         } else {
                             Queue.sendToQueue(false, '#' + req.body.userID + 'atividade', 'Teste finalizado')
