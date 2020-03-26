@@ -98,13 +98,7 @@ module.exports = {
             if (cadastrados = 0 && duplicados != 0) {
                 Queue.sendToQueue(false, '#' + c.userID + 'atividade', ' todos os ' + cadastrados + ' que você inseriu já exite na nossa base de dados')
             }
-            const cardstestados = await CadastroCards.where({ tested: false, owner: username, userID: id }).limit(1);
-            if (cardstestados == '') {
-                Queue.sendToQueue(false, '#' + c.userID + 'status', 'Aguardando...')
-                Queue.sendToQueue(false, '#' + c.userID + 'atividade', 'Processo finalizado com sucesso!!')
-            } else {
-                Queue.sendToQueue(false, '#' + c.userID + 'verificarcards', 'ok')
-            }
+          
         } catch (error) {
             let l = new Logs({ arq: 'ValidationController', type: 'errorcatch', msg: error.message })
             l.save();
