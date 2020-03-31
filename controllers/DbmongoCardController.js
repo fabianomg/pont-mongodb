@@ -24,9 +24,9 @@ module.exports = {
   async getcards(req, res) {
     let result;
     try {
-      let user = req.body.user;
-      if (user != "") {
-        result = await Cards.where({ user: user });
+      let id = req.body.data.id;
+      if (id != "") {
+        result = await Cards.where({ id: id });
       } else {
         result = await Cards.find();
       }
@@ -35,6 +35,7 @@ module.exports = {
     } catch (error) {
       result = error.message;
     }
+    let data = {data:result}
     return res.json(result);
   },
   async verifycards(req, res) {
