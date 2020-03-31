@@ -13,4 +13,4 @@ let CardsSchema = new Schema({
   },
   created_at: { type: Date, default: new Date() }
 });
-module.exports = mongoose.model("cards", CardsSchema, "cards");
+module.exports = mongoose.model("Cards", CardsSchema, "Cards");
