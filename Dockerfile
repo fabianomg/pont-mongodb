@@ -2,7 +2,7 @@
 FROM node:alpine
 
 # Create app directory
-WORKDIR /usr/src/cards
+WORKDIR /usr/src/pont-mongodb
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -14,8 +14,7 @@ RUN npm install
 # RUN npm ci --only=production
 
 # Bundle app source
-ENV PORT=3332
 COPY . .
-
+ENV PORT=3332
 EXPOSE $PORT
 CMD [ "npm", "start"]
