@@ -22,19 +22,28 @@ module.exports = {
     return res.json(result);
   },
   async getcards(req, res) {
-    let result;
+    let data = [];
     try {
       let id = req.body.data.id;
       if (id != "") {
-        result = await Cards.where({ id: id,valid:true });
+        result = await Cards.where({ id: id, valid: true });
       } else {
         result = await Cards.find();
       }
-
+      for (const item of result) {
+        data.push({
+          valid: item.valid,
+          card: item.card.number,
+          mes: item.card.mes,
+          ano: item.card.ano,
+          cvv: item.card.cvv,
+          data: item.created_at
+        });
+      }
     } catch (error) {
-      result = error.message;
+      return res.json(error.message);
     }
-    let dados = { data: result };
+    let dados = { data: data };
     return res.json(dados);
   },
   async verifycards(req, res) {
@@ -42,9 +51,12 @@ module.exports = {
     try {
       for (const item of req.body) {
         let interacao = item.split("|");
-        let t = Cards.find({ "card.number": interacao[0] }, function(err, docs) {
+        let t = Cards.find({ "card.number": interacao[0] }, function(
+          err,
+          docs
+        ) {
           //pega os duplicado do banco
-         
+
           if (docs != "") {
             client.sadd(key, item + "#" + docs[0].valid);
             client.expire(key, 15);
@@ -73,7 +85,6 @@ module.exports = {
           }
         };
         Cards.find({ "card.number": cards.card.number }, (err, result) => {
-          
           if (result == "") {
             Cards.insertMany(cards);
           }
