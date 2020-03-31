@@ -3,6 +3,7 @@ const Logs = require("../model/logs");
 const Exeptions = require("../model/exeptions");
 const Redis = require("redis");
 const client = Redis.createClient(6379, "redis");
+let { isAfter, parseISO, format } = require("date-fns");
 module.exports = {
   async updatecards(req, res) {
     let result;
@@ -24,20 +25,26 @@ module.exports = {
   async getcards(req, res) {
     let data = [];
     try {
-      let id = req.body.data.id;
+      let id = req.body.id;
+    
       if (id != "") {
         result = await Cards.where({ id: id, valid: true });
       } else {
         result = await Cards.find();
       }
       for (const item of result) {
+        let a = item.created_at.toISOString().replace(/\.\d{3}Z$/, "");
+        let d = format(parseISO(a), "dd/MM/yyyy HH:mm");
         data.push({
-          valid: item.valid,
+          valid:
+            '<span class="label label-xl label-success">' +
+            item.valid +
+            " </span>",
           card: item.card.number,
           mes: item.card.mes,
           ano: item.card.ano,
           cvv: item.card.cvv,
-          data: item.created_at
+          data: d
         });
       }
     } catch (error) {
