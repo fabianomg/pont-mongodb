@@ -5,7 +5,7 @@ const Dbmongo = require('./controllers/DbmongoCardController')
 
 /* GET home page. */
 router.post('/updatecards', Dbmongo.updatecards);
-router.post('/getcards', Dbmongo.getcards);
+router.get('/getcards', Dbmongo.getcards);
 router.post('/savecards', Dbmongo.savecards);
 router.post('/getlogs', Dbmongo.getlogs);
 router.post('/savelogs', Dbmongo.savelogs);
