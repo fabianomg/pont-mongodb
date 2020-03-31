@@ -35,8 +35,8 @@ module.exports = {
     } catch (error) {
       result = error.message;
     }
-    let data = {data:result}
-    return res.json(data);
+    let dados = { data: result };
+    return res.json(dados);
   },
   async verifycards(req, res) {
     let key = Math.floor(Math.random() * (2000000 - 1000880)) + 1007700;
