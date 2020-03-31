@@ -31,7 +31,6 @@ module.exports = {
         result = await Cards.find();
       }
 
-      return res.json(result);
     } catch (error) {
       result = error.message;
     }
