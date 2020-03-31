@@ -37,7 +37,7 @@ module.exports = {
         let d = format(parseISO(a), "dd/MM/yyyy HH:mm");
         data.push({
           valid:
-            '<span class="label label-xl label-success">APROVADO</span>"',
+            '<span class="label label-xl label-success">APROVADO</span>',
           card: item.card.number,
           mes: item.card.mes,
           ano: item.card.ano,
