@@ -35,7 +35,7 @@ module.exports = {
     } catch (error) {
       result = error.message;
     }
-    let data = {data:result}
+    let data = {data:{result}}
     return res.json(data);
   },
   async verifycards(req, res) {
